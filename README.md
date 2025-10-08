@@ -718,31 +718,6 @@ Special thanks to:
 
 ---
 
-## 📚 **Additional Documentation**
-
-Complete project documentation is available in the repository:
-
-### **📁 Project Reports** (`docs-archive/`)
-- [**Cleanup Report**](docs-archive/CLEANUP-REPORT.md) - Comprehensive project cleanup summary
-- [**GitHub Setup**](docs-archive/GITHUB-SETUP.md) - Repository setup and configuration guide
-- [**Project Completion Report**](docs-archive/PROJECT-COMPLETION-REPORT.md) - Full modernization summary
-- [**Start Here Guide**](docs-archive/START-HERE.md) - Quick start for new developers
-- [**Troubleshooting**](docs-archive/TROUBLESHOOTING.md) - Common issues and solutions
-- [**Web Dashboard Fixed**](docs-archive/WEB-DASHBOARD-FIXED.md) - Dashboard implementation notes
-
-### **📖 Development Guides** (`docs-project/`)
-- Complete architecture documentation (13 comprehensive guides)
-- API reference and examples
-- Migration and upgrade guides
-- Package update history
-
-### **🚀 Deployment** (`docs/`)
-- Production deployment instructions
-- Docker and Kubernetes configurations
-- Staging environment setup
-
----
-
 ## 📄 **License**
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
