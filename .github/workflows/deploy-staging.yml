@@ -213,7 +213,7 @@ jobs:
           docker-compose -f docker-compose.staging.yml logs --tail=50
       
       - name: Send deployment notification
-        if: always()
+        if: always() && secrets.DEPLOYMENT_WEBHOOK_URL != ''
         env:
           WEBHOOK_URL: ${{ secrets.DEPLOYMENT_WEBHOOK_URL }}
         run: |
