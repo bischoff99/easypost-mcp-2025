@@ -53,8 +53,15 @@ Complete documentation for the EasyPost MCP Server 2025 project.
 
 ---
 
-## 📝 **Project Summaries**
+## 📝 **Project Summaries & Analysis**
 
+### **Current State Analysis** (October 2025)
+- [**PROJECT-STATE-SUMMARY**](PROJECT-STATE-SUMMARY.md) - Executive summary of current project state
+- [**PROJECT-STATE-ANALYSIS**](PROJECT-STATE-ANALYSIS.md) - Comprehensive analysis report (17K words)
+- [**PROJECT-QUICK-STATS**](PROJECT-QUICK-STATS.md) - Quick reference dashboard
+- [**VISUAL-ARCHITECTURE-MAP**](VISUAL-ARCHITECTURE-MAP.md) - Visual diagrams and architecture maps
+
+### **Previous Reports**
 - [**FINAL-SUMMARY**](FINAL-SUMMARY.md) - Complete project summary
 - [**MCP-TOOLS-SESSION-REPORT**](MCP-TOOLS-SESSION-REPORT.md) - Latest MCP tools session
 
@@ -62,10 +69,10 @@ Complete documentation for the EasyPost MCP Server 2025 project.
 
 ## 📊 **Quick Stats**
 
-- **Total Guides**: 22 documents
-- **Total Words**: ~25,000+
-- **Coverage**: Architecture, Features, Testing, Deployment, GraphQL
-- **Status**: Comprehensive and up-to-date
+- **Total Guides**: 25 documents
+- **Total Words**: ~40,000+
+- **Coverage**: Architecture, Features, Testing, Deployment, GraphQL, Current State
+- **Status**: Comprehensive and up-to-date (Oct 2025)
 
 ---
 
