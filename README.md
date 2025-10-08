@@ -241,8 +241,7 @@ easypost-mcp-server-2025/
 │   └── performance/       # Performance benchmarks
 ├── docs/                  # Documentation
 ├── k8s/                   # Kubernetes manifests
-├── docker/                # Docker configurations
-└── scripts/               # Build and deployment scripts
+└── docker/                # Docker configurations
 ```
 
 ---

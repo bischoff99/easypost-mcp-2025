@@ -16,8 +16,6 @@
     "test:integration": "node test/integration.test.js",
     "test:web": "node test/web-api.test.js",
     "health": "curl -s http://localhost:3000/health | jq",
-    "validate": "node scripts/validate-tools.js",
-    "migrate": "node scripts/migrate-from-v3.js",
     "lint": "eslint *.js --fix",
     "format": "prettier --write *.js web/*.{html,css,js}",
     "audit": "npm audit --audit-level high",
@@ -27,14 +25,11 @@
     "docker:run": "docker run -d -p 3000:3000 --env-file .env easypost-mcp-2025",
     "k8s:deploy": "kubectl apply -f k8s/",
     "performance": "lighthouse http://localhost:3000 --output json --output-path ./reports/lighthouse.json",
-    "deploy:staging": "./scripts/deploy-staging.sh",
-    "health:staging": "./scripts/health-check.sh localhost",
     "logs:staging": "docker-compose -f docker-compose.staging.yml logs -f",
     "docker:build:staging": "docker build --target production -t easypost-mcp:staging .",
     "docker:up": "docker-compose -f docker-compose.staging.yml up -d",
     "docker:down": "docker-compose -f docker-compose.staging.yml down",
-    "docker:logs": "docker-compose -f docker-compose.staging.yml logs -f",
-    "rollback:staging": "./scripts/rollback.sh"
+    "docker:logs": "docker-compose -f docker-compose.staging.yml logs -f"
   },
   "engines": {
     "node": ">=22.0.0",
