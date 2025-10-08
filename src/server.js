@@ -100,7 +100,10 @@ function initializeExpress() {
   app.use('/api/batch', validateApiKey, batchRoutes);
 
   // 404 handler for API routes only
-  app.use('/api/*', middleware.notFoundMiddleware);
+  app.use('/api', (req, res, next) => {
+    // If no route matched, send 404
+    middleware.notFoundMiddleware(req, res, next);
+  });
 
   // Error handler (before SPA fallback)
   app.use(middleware.errorHandlerMiddleware);

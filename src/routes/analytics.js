@@ -4,14 +4,12 @@
  */
 
 import express from 'express';
-import ShipmentService from '../services/ShipmentService.js';
-import TrackingService from '../services/TrackingService.js';
+import shipmentService from '../services/ShipmentService.js';
+import trackingService from '../services/TrackingService.js';
 import logger from '../lib/logger.js';
 import { cache } from '../lib/redis.js';
 
 const router = express.Router();
-const shipmentService = new ShipmentService();
-const trackingService = new TrackingService();
 
 /**
  * GET /api/analytics/ai

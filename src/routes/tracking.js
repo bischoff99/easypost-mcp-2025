@@ -4,11 +4,10 @@
  */
 
 import express from 'express';
-import TrackingService from '../services/TrackingService.js';
+import trackingService from '../services/TrackingService.js';
 import logger from '../lib/logger.js';
 
 const router = express.Router();
-const trackingService = new TrackingService();
 
 /**
  * POST /api/tracking/create

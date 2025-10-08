@@ -4,11 +4,10 @@
  */
 
 import express from 'express';
-import ShipmentService from '../services/ShipmentService.js';
+import shipmentService from '../services/ShipmentService.js';
 import logger from '../lib/logger.js';
 
 const router = express.Router();
-const shipmentService = new ShipmentService();
 
 /**
  * POST /api/luma/recommend
