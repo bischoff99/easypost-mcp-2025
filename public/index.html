@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EasyPost Dashboard 2025 - Real Data</title>
-    <meta name="description" content="EasyPost shipping dashboard with live account data">
+    <title>EasyPost Dashboard 2025</title>
+    <meta name="description" content="Complete shipping management platform with AI-powered features">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,223 +14,678 @@
 </head>
 <body data-theme="light">
     <!-- Global Loader -->
-    <div id="global-loader" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 2rem; border-radius: 12px; text-align: center;">
-            <div class="spinner" style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #A47C48; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+    <div id="global-loader" class="hidden">
+        <div class="loader-content">
+            <div class="spinner"></div>
             <div class="loader-text">Loading...</div>
         </div>
     </div>
 
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <h1>📦 EasyPost Dashboard</h1>
-            <div class="header-actions">
-                <button id="refresh-data" class="btn-icon" title="Refresh data">
-                    🔄
-                </button>
-                <button id="theme-toggle" class="btn-icon" title="Toggle theme">
-                    🌓
-                </button>
-            </div>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>📦 EasyPost</h2>
+            <button id="sidebar-toggle" class="btn-icon" title="Toggle sidebar">
+                ☰
+            </button>
         </div>
-    </header>
+        
+        <nav class="sidebar-nav">
+            <a href="#dashboard" class="nav-link active" data-section="dashboard">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="#shipments" class="nav-link" data-section="shipments">
+                <span class="nav-icon">📦</span>
+                <span class="nav-text">Shipments</span>
+            </a>
+            <a href="#tracking" class="nav-link" data-section="tracking">
+                <span class="nav-icon">🔍</span>
+                <span class="nav-text">Tracking</span>
+            </a>
+            <a href="#luma-ai" class="nav-link" data-section="luma-ai">
+                <span class="nav-icon">🤖</span>
+                <span class="nav-text">Luma AI</span>
+            </a>
+            <a href="#claims" class="nav-link" data-section="claims">
+                <span class="nav-icon">🛡️</span>
+                <span class="nav-text">Claims</span>
+            </a>
+            <a href="#forge" class="nav-link" data-section="forge">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">Forge</span>
+            </a>
+            <a href="#analytics" class="nav-link" data-section="analytics">
+                <span class="nav-icon">📈</span>
+                <span class="nav-text">Analytics</span>
+            </a>
+            <a href="#batch" class="nav-link" data-section="batch">
+                <span class="nav-icon">⚡</span>
+                <span class="nav-text">Batch</span>
+            </a>
+        </nav>
 
-    <!-- Main Content -->
-    <main class="container">
-        <!-- Statistics Cards -->
-        <section class="stats-grid">
-            <div class="stat-card">
-                <h3>Total Shipments</h3>
-                <div class="stat-value" id="total-shipments">0</div>
-                <div class="stat-label">All time</div>
-            </div>
-            
-            <div class="stat-card">
-                <h3>Active Tracking</h3>
-                <div class="stat-value" id="active-tracking">0</div>
-                <div class="stat-label">In transit</div>
-            </div>
-            
-            <div class="stat-card">
-                <h3>Delivered Today</h3>
-                <div class="stat-value" id="delivered-today">0</div>
-                <div class="stat-label">Successful</div>
-            </div>
-            
-            <div class="stat-card">
-                <h3>Total Cost</h3>
-                <div class="stat-value" id="total-cost">$0.00</div>
-                <div class="stat-label">This period</div>
-            </div>
-        </section>
+        <div class="sidebar-footer">
+            <button id="theme-toggle" class="btn-secondary btn-block">
+                <span id="theme-icon">🌓</span>
+                <span>Toggle Theme</span>
+            </button>
+        </div>
+    </aside>
 
-        <!-- Recent Shipments -->
-        <section class="section">
-            <div class="section-header">
-                <h2>📦 Recent Shipments</h2>
-                <span class="badge" id="today-shipments">0 today</span>
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Shipment ID</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Status</th>
-                            <th>Carrier</th>
-                            <th>Cost</th>
-                        </tr>
-                    </thead>
-                    <tbody id="shipments-table-body">
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 2rem;">
-                                Loading shipments...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Active Tracking -->
-        <section class="section">
-            <div class="section-header">
-                <h2>🔍 Active Tracking</h2>
-                <span class="badge" id="tracking-count">0 active</span>
-            </div>
-            
-            <div id="tracking-list" class="tracking-list">
-                <div style="text-align: center; padding: 2rem; color: var(--text-secondary)">
-                    Loading tracking information...
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+        <!-- Top Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 id="page-title">Dashboard</h1>
+                <div class="header-actions">
+                    <button id="refresh-data" class="btn-icon" title="Refresh data">
+                        🔄
+                    </button>
+                    <button id="open-command-palette" class="btn-primary">
+                        <span>⌘K</span> Command
+                    </button>
                 </div>
             </div>
-        </section>
-    </main>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <div id="section-dashboard" class="content-section active">
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Shipments</h3>
+                        <div class="stat-value" id="total-shipments">0</div>
+                        <div class="stat-label">All time</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Active Tracking</h3>
+                        <div class="stat-value" id="active-tracking">0</div>
+                        <div class="stat-label">In transit</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Delivered Today</h3>
+                        <div class="stat-value" id="delivered-today">0</div>
+                        <div class="stat-label">Successful</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Total Cost</h3>
+                        <div class="stat-value" id="total-cost">$0.00</div>
+                        <div class="stat-label">This period</div>
+                    </div>
+                </div>
+
+                <!-- Recent Shipments -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📦 Recent Shipments</h2>
+                        <span class="badge" id="today-shipments">0 today</span>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Shipment ID</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Status</th>
+                                    <th>Carrier</th>
+                                    <th>Cost</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shipments-table-body">
+                                <tr>
+                                    <td colspan="7" class="text-center">Loading shipments...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipments Section -->
+            <div id="section-shipments" class="content-section">
+                <div class="section-toolbar">
+                    <button id="btn-create-shipment" class="btn-primary">
+                        ➕ Create Shipment
+                    </button>
+                    <div class="toolbar-search">
+                        <input type="text" id="shipments-search" placeholder="Search shipments..." class="input-search">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>All Shipments</h2>
+                        <div class="filters">
+                            <select id="shipment-status-filter" class="select">
+                                <option value="">All Status</option>
+                                <option value="created">Created</option>
+                                <option value="purchased">Purchased</option>
+                                <option value="delivered">Delivered</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>From → To</th>
+                                    <th>Tracking</th>
+                                    <th>Status</th>
+                                    <th>Carrier</th>
+                                    <th>Cost</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="all-shipments-table">
+                                <tr>
+                                    <td colspan="8" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tracking Section -->
+            <div id="section-tracking" class="content-section">
+                <div class="section-toolbar">
+                    <button id="btn-track-package" class="btn-primary">
+                        🔍 Track Package
+                    </button>
+                </div>
+
+                <div class="grid-2-col">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Active Packages</h2>
+                        </div>
+                        <div id="active-tracking-list"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Recent Deliveries</h2>
+                        </div>
+                        <div id="delivered-tracking-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Luma AI Section -->
+            <div id="section-luma-ai" class="content-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>🤖 Luma AI - Smart Recommendations</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-secondary mb-4">Get AI-powered shipping recommendations optimized for cost, speed, or reliability.</p>
+                        
+                        <button id="btn-get-recommendations" class="btn-primary">
+                            Get AI Recommendations
+                        </button>
+                        
+                        <div id="luma-results" class="mt-4"></div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h2>⚡ One-Call Buy</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-secondary mb-4">AI automatically selects the best rate and purchases the label.</p>
+                        
+                        <button id="btn-one-call-buy" class="btn-success">
+                            One-Call Buy with AI
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Claims Section -->
+            <div id="section-claims" class="content-section">
+                <div class="section-toolbar">
+                    <button id="btn-submit-claim" class="btn-primary">
+                        ➕ Submit Claim
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Insurance Claims</h2>
+                        <select id="claims-status-filter" class="select">
+                            <option value="">All Status</option>
+                            <option value="submitted">Submitted</option>
+                            <option value="under_review">Under Review</option>
+                            <option value="approved">Approved</option>
+                            <option value="denied">Denied</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Claim ID</th>
+                                    <th>Type</th>
+                                    <th>Tracking</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>AI Risk</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="claims-table">
+                                <tr>
+                                    <td colspan="8" class="text-center">Loading claims...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Forge Section -->
+            <div id="section-forge" class="content-section">
+                <div class="section-toolbar">
+                    <button id="btn-create-customer" class="btn-primary">
+                        ➕ Create Customer
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>White-Label Customers</h2>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <th>Company</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>API Key</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="forge-customers-table">
+                                <tr>
+                                    <td colspan="7" class="text-center">Loading customers...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="section-analytics" class="content-section">
+                <div class="grid-2-col mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Monthly Volume</h3>
+                        </div>
+                        <canvas id="chart-monthly-volume"></canvas>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Carrier Breakdown</h3>
+                        </div>
+                        <canvas id="chart-carrier-breakdown"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid-2-col">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Cost Trends</h3>
+                        </div>
+                        <canvas id="chart-cost-trends"></canvas>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>AI Insights</h3>
+                        </div>
+                        <div id="ai-insights-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batch Section -->
+            <div id="section-batch" class="content-section">
+                <div class="section-toolbar">
+                    <button id="btn-create-batch" class="btn-primary">
+                        ⚡ Create Batch
+                    </button>
+                    <button id="btn-upload-csv" class="btn-secondary">
+                        📄 Upload CSV
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Batch Operations</h2>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Batch ID</th>
+                                    <th>Total Shipments</th>
+                                    <th>Success</th>
+                                    <th>Failed</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-table">
+                                <tr>
+                                    <td colspan="8" class="text-center">No batches yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <!-- Command Palette -->
     <div id="command-palette" class="command-palette hidden">
         <div class="command-palette-backdrop"></div>
         <div class="command-palette-content">
-            <input type="text" id="command-input" placeholder="Type a command..." autocomplete="off">
+            <input type="text" id="command-input" placeholder="Type a command or search..." autocomplete="off">
             <div id="command-results" class="command-results"></div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <p>EasyPost MCP Server 2025 - Real-time shipping management</p>
-        <p id="last-updated">Last updated: --</p>
-    </footer>
+    <!-- Create Shipment Modal -->
+    <div id="modal-create-shipment" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2>Create New Shipment</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="create-shipment-form">
+                    <!-- From Address -->
+                    <div class="form-section">
+                        <h3>From Address</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Name *</label>
+                                <input type="text" name="from_name" required class="input">
+                            </div>
+                            <div class="form-group">
+                                <label>Company</label>
+                                <input type="text" name="from_company" class="input">
+                            </div>
+                            <div class="form-group col-span-2">
+                                <label>Street Address *</label>
+                                <input type="text" name="from_street1" required class="input">
+                            </div>
+                            <div class="form-group col-span-2">
+                                <label>Street Address 2</label>
+                                <input type="text" name="from_street2" class="input">
+                            </div>
+                            <div class="form-group">
+                                <label>City *</label>
+                                <input type="text" name="from_city" required class="input">
+                            </div>
+                            <div class="form-group">
+                                <label>State *</label>
+                                <input type="text" name="from_state" required class="input" maxlength="2">
+                            </div>
+                            <div class="form-group">
+                                <label>ZIP Code *</label>
+                                <input type="text" name="from_zip" required class="input">
+                            </div>
+                            <div class="form-group">
+                                <label>Country *</label>
+                                <input type="text" name="from_country" value="US" required class="input" maxlength="2">
+                            </div>
+                        </div>
+                    </div>
 
-    <!-- Load the dashboard script -->
+                    <!-- To Address -->
+                    <div class="form-section">
+                        <h3>To Address</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Name *</label>
+                                <input type="text" name="to_name" required class="input">
+                            </div>
+                            <div class="form-group">
+                                <label>Company</label>
+                                <input type="text" name="to_company" class="input">
+                            </div>
+                            <div class="form-group col-span-2">
+                                <label>Street Address *</label>
+                                <input type="text" name="to_street1" required class="input">
+                            </div>
+                            <div class="form-group col-span-2">
+                                <label>Street Address 2</label>
+                                <input type="text" name="to_street2" class="input">
+                            </div>
+                            <div class="form-group">
+                                <label>City *</label>
+                                <input type="text" name="to_city" required class="input">
+                            </div>
+                            <div class="form-group">
+                                <label>State *</label>
+                                <input type="text" name="to_state" required class="input" maxlength="2">
+                            </div>
+                            <div class="form-group">
+                                <label>ZIP Code *</label>
+                                <input type="text" name="to_zip" required class="input">
+                            </div>
+                            <div class="form-group">
+                                <label>Country *</label>
+                                <input type="text" name="to_country" value="US" required class="input" maxlength="2">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Parcel Details -->
+                    <div class="form-section">
+                        <h3>Parcel Details</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Length (inches) *</label>
+                                <input type="number" name="parcel_length" required class="input" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>Width (inches) *</label>
+                                <input type="number" name="parcel_width" required class="input" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>Height (inches) *</label>
+                                <input type="number" name="parcel_height" required class="input" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>Weight (oz) *</label>
+                                <input type="number" name="parcel_weight" required class="input" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-create-shipment')">Cancel</button>
+                <button type="submit" form="create-shipment-form" class="btn-primary">Get Rates</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rate Shopping Modal -->
+    <div id="modal-rate-shopping" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2>Select Shipping Rate</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="rates-list" class="rates-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shipment Details Modal -->
+    <div id="modal-shipment-details" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2>Shipment Details</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="shipment-details-content">
+                <!-- Details loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-shipment-details')">Close</button>
+                <button id="btn-download-label" class="btn-primary">Download Label</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Claim Modal -->
+    <div id="modal-submit-claim" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Submit Insurance Claim</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="submit-claim-form">
+                    <div class="form-group">
+                        <label>Claim Type *</label>
+                        <select name="type" required class="select">
+                            <option value="">Select type...</option>
+                            <option value="damage">Damage</option>
+                            <option value="loss">Loss</option>
+                            <option value="theft">Theft</option>
+                            <option value="delay">Delay</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tracking Code *</label>
+                        <input type="text" name="tracking_code" required class="input">
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea name="description" required class="textarea" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Claimed Amount ($) *</label>
+                        <input type="number" name="claimed_amount" required class="input" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Email *</label>
+                        <input type="email" name="contact_email" required class="input">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-submit-claim')">Cancel</button>
+                <button type="submit" form="submit-claim-form" class="btn-primary">Submit Claim</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Track Package Modal -->
+    <div id="modal-track-package" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Track Package</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="track-package-form">
+                    <div class="form-group">
+                        <label>Tracking Number *</label>
+                        <input type="text" name="tracking_code" required class="input" placeholder="Enter tracking number">
+                    </div>
+                    <div class="form-group">
+                        <label>Carrier (Optional)</label>
+                        <select name="carrier" class="select">
+                            <option value="">Auto-detect</option>
+                            <option value="USPS">USPS</option>
+                            <option value="UPS">UPS</option>
+                            <option value="FedEx">FedEx</option>
+                            <option value="DHL">DHL</option>
+                        </select>
+                    </div>
+                </form>
+                <div id="tracking-results" class="mt-4"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-track-package')">Close</button>
+                <button type="submit" form="track-package-form" class="btn-primary">Track</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Customer Modal -->
+    <div id="modal-create-customer" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create White-Label Customer</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="create-customer-form">
+                    <div class="form-group">
+                        <label>Company Name *</label>
+                        <input type="text" name="company" required class="input">
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Name *</label>
+                        <input type="text" name="name" required class="input">
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" name="email" required class="input">
+                    </div>
+                    <div class="form-group">
+                        <label>Monthly Shipment Limit</label>
+                        <input type="number" name="monthly_limit" value="1000" class="input">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-create-customer')">Cancel</button>
+                <button type="submit" form="create-customer-form" class="btn-primary">Create Customer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Load Dashboard Script -->
     <script src="app.js"></script>
-    
-    <style>
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .stat-card {
-            padding: 1.5rem;
-            background: var(--bg-primary);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin: 0.5rem 0;
-        }
-        
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .section {
-            margin-bottom: 2rem;
-            background: var(--bg-primary);
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-        }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .badge {
-            padding: 0.25rem 0.75rem;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            font-size: 0.875rem;
-        }
-        
-        .tracking-card {
-            padding: 1rem;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border);
-        }
-        
-        .tracking-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-        
-        .tracking-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .latest-update {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            padding-top: 0.75rem;
-            border-top: 1px solid var(--border);
-        }
-        
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .status-delivered { background: #d1fae5; color: #065f46; }
-        .status-in-transit { background: #dbeafe; color: #1e40af; }
-        .status-out-for-delivery { background: #fed7aa; color: #92400e; }
-        .status-pending { background: #f3f4f6; color: #374151; }
-        .status-failed { background: #fee2e2; color: #991b1b; }
-        
-        [data-theme="dark"] .status-delivered { background: #065f46; color: #d1fae5; }
-        [data-theme="dark"] .status-in-transit { background: #1e40af; color: #dbeafe; }
-        [data-theme="dark"] .status-out-for-delivery { background: #92400e; color: #fed7aa; }
-        [data-theme="dark"] .status-pending { background: #374151; color: #f3f4f6; }
-        [data-theme="dark"] .status-failed { background: #991b1b; color: #fee2e2; }
-    </style>
 </body>
 </html>
-
