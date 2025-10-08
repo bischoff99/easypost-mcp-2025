@@ -14,6 +14,17 @@ import logger from './lib/logger.js';
 import { createRedisClient } from './lib/redis.js';
 import initializeSocketIO from './sockets/index.js';
 import middleware from './middleware/index.js';
+import { validateApiKey } from './middleware/auth.js';
+
+// Import route handlers
+import shipmentsRoutes from './routes/shipments.js';
+import trackingRoutes from './routes/tracking.js';
+import addressesRoutes from './routes/addresses.js';
+import lumaAiRoutes from './routes/luma-ai.js';
+import claimsRoutes from './routes/claims.js';
+import forgeRoutes from './routes/forge.js';
+import analyticsRoutes from './routes/analytics.js';
+import batchRoutes from './routes/batch.js';
 
 // ASCII Banner
 console.log(
@@ -52,7 +63,7 @@ function initializeExpress() {
   // Health check endpoint (before rate limiting)
   app.get('/health', middleware.healthCheckMiddleware);
 
-  // API routes
+  // API status endpoint (public)
   app.get('/api/status', (req, res) => {
     res.json({
       status: 'operational',
@@ -60,6 +71,16 @@ function initializeExpress() {
       timestamp: new Date().toISOString(),
     });
   });
+
+  // Mount API routes (protected with API key authentication)
+  app.use('/api/shipments', validateApiKey, shipmentsRoutes);
+  app.use('/api/tracking', validateApiKey, trackingRoutes);
+  app.use('/api/addresses', validateApiKey, addressesRoutes);
+  app.use('/api/luma', validateApiKey, lumaAiRoutes);
+  app.use('/api/claims', validateApiKey, claimsRoutes);
+  app.use('/api/forge', validateApiKey, forgeRoutes);
+  app.use('/api/analytics', validateApiKey, analyticsRoutes);
+  app.use('/api/batch', validateApiKey, batchRoutes);
 
   // Serve static files (if needed)
   app.use(express.static('web', { maxAge: '1d' }));

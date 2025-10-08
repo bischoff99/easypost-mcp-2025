@@ -52,36 +52,47 @@
 - **Node.js 22.x LTS** or higher
 - **npm 11.0+** or **yarn 4.0+**
 - **EasyPost API Key** ([Get yours here](https://www.easypost.com/signup))
+- **Redis 7.x** (optional but recommended for caching)
 
-### **One-Command Setup**
-```bash
-# Clone and setup everything automatically
-npx create-easypost-mcp@latest my-shipping-app
-cd my-shipping-app
-npm start
-```
-
-### **Manual Installation**
+### **Local Development Setup**
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/easypost-mcp-server-2025.git
-cd easypost-mcp-server-2025
+git clone https://github.com/bischoff99/easypost-mcp-2025.git
+cd easypost-mcp-2025
 
 # 2. Install dependencies
 npm install
 
 # 3. Configure environment
 cp .env.example .env
-# Edit .env and add your EasyPost API key
+# Edit .env and add your EasyPost API key:
+# EASYPOST_API_KEY=your_key_here
 
-# 4. Build TypeScript
-npm run build
+# 4. Start Redis (optional)
+docker run -d -p 6379:6379 --name redis redis:7-alpine
 
 # 5. Start the servers
 npm run both        # Both MCP and web servers
 # OR
-npm start          # MCP server only
-npm run web        # Web dashboard only
+npm start          # MCP server only (port 3000)
+npm run web        # Web dashboard only (port 8080)
+```
+
+### **Docker Development Setup (Recommended)**
+```bash
+# 1. Clone and configure
+git clone https://github.com/bischoff99/easypost-mcp-2025.git
+cd easypost-mcp-2025
+cp .env.example .env
+# Add your EASYPOST_API_KEY to .env
+
+# 2. Start everything with Docker
+npm run dev:docker
+
+# Access:
+# - API Server: http://localhost:3000
+# - Web Dashboard: http://localhost:8080
+# - Redis: localhost:6379
 ```
 
 ### **Docker Setup** 🐳
@@ -161,23 +172,122 @@ const shipment = await easypost.luma.oneCallBuy({
 
 ## 🔌 **API Reference**
 
-### **Core Endpoints**
-
-| Endpoint | Method | Description | Authentication |
-|----------|---------|-------------|---------------|
-| `/api/shipments/create` | POST | Create shipment with rate shopping | API Key |
-| `/api/luma/recommend` | POST | Get AI shipping recommendations | API Key |
-| `/api/luma/one-call-buy` | POST | AI-powered automatic shipping | API Key |
-| `/api/claims` | POST | Submit insurance claims | API Key |
-| `/api/forge/customers` | POST | Create white-label customers | API Key |
-| `/api/analytics/ai` | GET | AI-powered analytics insights | API Key |
-| `/api/tracking/{id}` | GET | Real-time package tracking | API Key |
-
 ### **Authentication**
+All API endpoints require authentication via API key:
 ```bash
-# All API requests require authentication
-curl -H "X-API-Key: your_api_key" https://your-server.com/api/shipments
+# Using X-API-Key header
+curl -H "X-API-Key: your_api_key" http://localhost:3000/api/shipments/list
+
+# Or using Authorization Bearer token
+curl -H "Authorization: Bearer your_api_key" http://localhost:3000/api/shipments/list
 ```
+
+### **Shipments API**
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `/api/shipments/create` | POST | Create shipment with rate shopping |
+| `/api/shipments/:id` | GET | Get shipment details |
+| `/api/shipments/list` | GET | List shipments (paginated) |
+| `/api/shipments/:id/buy` | POST | Purchase shipment with selected rate |
+| `/api/shipments/:id/refund` | POST | Request shipment refund |
+| `/api/shipments/:id/label` | GET | Get shipment label |
+
+**Example - Create Shipment:**
+```bash
+curl -X POST http://localhost:3000/api/shipments/create \
+  -H "X-API-Key: your_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "to_address": {
+      "name": "Test User",
+      "street1": "179 N Harbor Dr",
+      "city": "Redondo Beach",
+      "state": "CA",
+      "zip": "90277",
+      "country": "US"
+    },
+    "from_address": {
+      "name": "EasyPost",
+      "street1": "417 Montgomery Street",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94104",
+      "country": "US"
+    },
+    "parcel": {
+      "length": 10,
+      "width": 8,
+      "height": 4,
+      "weight": 16
+    }
+  }'
+```
+
+### **Tracking API**
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `/api/tracking/create` | POST | Create tracker for package |
+| `/api/tracking/:id` | GET | Get tracker details |
+| `/api/tracking/list` | GET | List all trackers |
+| `/api/tracking/:id/history` | GET | Get tracking history |
+
+### **Luma AI API**
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `/api/luma/recommend` | POST | Get AI shipping recommendations |
+| `/api/luma/one-call-buy` | POST | AI-powered automatic shipping |
+
+### **Claims API**
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `/api/claims/create` | POST | Submit insurance claim |
+| `/api/claims/list` | GET | List all claims |
+| `/api/claims/:id` | GET | Get claim details |
+| `/api/claims/:id/update` | POST | Update claim status |
+
+### **Forge API** (White-Label)
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `/api/forge/customers` | POST | Create white-label customer |
+| `/api/forge/customers` | GET | List all customers |
+| `/api/forge/customers/:id` | GET | Get customer details |
+| `/api/forge/customers/:id` | PATCH | Update customer configuration |
+
+### **Analytics API**
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `/api/analytics/ai` | GET | AI-powered analytics insights |
+| `/api/analytics/summary` | GET | Summary statistics |
+| `/api/analytics/trends` | GET | Trend data for charts |
+
+### **Batch API**
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `/api/batch/create` | POST | Create bulk shipment batch |
+| `/api/batch/:id` | GET | Get batch details |
+| `/api/batch/:id/status` | GET | Get batch processing status |
+
+### **Addresses API**
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `/api/addresses/create` | POST | Create and validate address |
+| `/api/addresses/verify` | POST | Verify address |
+| `/api/addresses/:id` | GET | Get address details |
+
+### **System Endpoints** (No Authentication Required)
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `/health` | GET | Server health check |
+| `/api/status` | GET | API operational status |
 
 ### **WebSocket Real-Time Updates**
 ```javascript
@@ -564,25 +674,80 @@ npm test
 - 🚀 **CI/CD**: All tests must pass before merging
 
 ### **Development Commands**
+
+**Local Development:**
 ```bash
-npm run dev           # Start development servers with hot reload
-npm run build         # Build production bundle
+npm run dev           # Start MCP server with hot reload
+npm run web           # Start web dashboard
+npm run both          # Start both servers
 npm run lint          # Run ESLint
 npm run format        # Format code with Prettier
-npm run type-check    # TypeScript type checking
-npm test              # Run test suite
-npm run storybook     # Start component storybook
+npm test              # Run all tests
+npm run test:api      # Run API integration tests
+npm run test:watch    # Watch mode for tests
+```
+
+**Docker Development:**
+```bash
+npm run dev:docker    # Start full dev environment (API + Web + Redis)
+npm run dev:build     # Rebuild and start dev environment
+npm run test:docker   # Run tests in Docker container
+npm run shell         # Access API container shell
+npm run shell:web     # Access Web container shell
+npm run logs:dev      # View all container logs
+npm run down:dev      # Stop dev environment
+```
+
+**Docker Compose Commands:**
+```bash
+# Start services
+docker-compose -f docker-compose.dev.yml up
+
+# Start with rebuild
+docker-compose -f docker-compose.dev.yml up --build
+
+# Run in background
+docker-compose -f docker-compose.dev.yml up -d
+
+# View logs
+docker-compose -f docker-compose.dev.yml logs -f api-dev
+
+# Stop services
+docker-compose -f docker-compose.dev.yml down
+
+# Run tests
+docker-compose -f docker-compose.dev.yml --profile test up test-runner
 ```
 
 ---
 
 ## 📚 **Documentation**
 
+### **Environment Variables**
+
+All configuration is done via environment variables. See `.env.example` for the complete list.
+
+**Required:**
+- `EASYPOST_API_KEY` - Your EasyPost API key (get from https://www.easypost.com)
+- `NODE_ENV` - Environment (development, staging, production)
+- `PORT` - MCP server port (default: 3000)
+- `WEB_PORT` - Web dashboard port (default: 8080)
+
+**Optional:**
+- `REDIS_URL` - Redis connection string (default: redis://localhost:6379)
+- `LOG_LEVEL` - Logging level (debug, info, warn, error)
+- `FEATURE_LUMA_AI` - Enable Luma AI features (true/false)
+- `FEATURE_FORGE` - Enable Forge white-label platform (true/false)
+- `FEATURE_CLAIMS_API` - Enable claims processing (true/false)
+
+See `.env.example` for all 70+ available configuration options.
+
 ### **Complete Documentation**
 - 📖 [**API Reference**](https://docs.easypost.com/api) - Complete API documentation
-- 🔧 **Configuration**: See `.env.example` for available environment variables
-- 🧪 **Testing**: Run `npm test` to execute the test suite
+- 🔧 **Configuration**: See `.env.example` for all environment variables
+- 🧪 **Testing**: Run `npm test` or `npm run test:docker` to execute tests
 - 🛡️ **Security**: Built-in security with Helmet 8.0, rate limiting, and input validation
+- 🐳 **Docker**: Use `docker-compose.dev.yml` for development environment
 
 ### **API Documentation**
 Interactive API documentation available at:

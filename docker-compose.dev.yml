@@ -1,0 +1,161 @@
+version: '3.8'
+
+# EasyPost MCP Server 2025 - Development Environment
+# Hot-reload enabled development setup for API implementation and testing
+
+services:
+  # Development API Server
+  api-dev:
+    build:
+      context: .
+      target: development
+      dockerfile: Dockerfile
+    container_name: easypost-api-dev
+    volumes:
+      # Mount source code for hot reload
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./tests:/app/tests
+      # Preserve node_modules in container
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - EASYPOST_API_KEY=${EASYPOST_API_KEY:-}
+      - PORT=3000
+      - WEB_PORT=8080
+      - HOST=0.0.0.0
+      - LOG_LEVEL=debug
+      - REDIS_URL=redis://redis:6379
+      - FEATURE_LUMA_AI=true
+      - FEATURE_FORGE=true
+      - FEATURE_CLAIMS_API=true
+      - DEBUG_MODE=true
+      - HOT_RELOAD=true
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Node.js debugger port
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: npm run dev
+    stdin_open: true
+    tty: true
+    networks:
+      - easypost-dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Web Dashboard Server
+  web-dev:
+    build:
+      context: .
+      target: development
+      dockerfile: Dockerfile
+    container_name: easypost-web-dev
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - EASYPOST_API_KEY=${EASYPOST_API_KEY:-}
+      - PORT=8080
+      - HOST=0.0.0.0
+      - LOG_LEVEL=debug
+      - REDIS_URL=redis://redis:6379
+      - DEBUG_MODE=true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api-dev
+      - redis
+    command: npm run web
+    stdin_open: true
+    tty: true
+    networks:
+      - easypost-dev
+    restart: unless-stopped
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: easypost-redis-dev
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    networks:
+      - easypost-dev
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  # Test Runner (run on demand with --profile test)
+  test-runner:
+    build:
+      context: .
+      target: development
+      dockerfile: Dockerfile
+    container_name: easypost-test-runner
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./package.json:/app/package.json
+      - /app/node_modules
+    environment:
+      - NODE_ENV=test
+      - EASYPOST_API_KEY=${EASYPOST_API_KEY:-}
+      - TEST_EASYPOST_API_KEY=${EASYPOST_API_KEY:-}
+      - REDIS_URL=redis://redis:6379
+      - LOG_LEVEL=error
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: npm test
+    networks:
+      - easypost-dev
+    profiles: ["test"]
+
+networks:
+  easypost-dev:
+    driver: bridge
+    name: easypost-dev-network
+
+volumes:
+  redis-dev-data:
+    driver: local
+    name: easypost-redis-dev-data
+
+# === Usage Examples ===
+#
+# Start development environment:
+#   docker-compose -f docker-compose.dev.yml up
+#
+# Start with rebuild:
+#   docker-compose -f docker-compose.dev.yml up --build
+#
+# Run tests:
+#   docker-compose -f docker-compose.dev.yml --profile test up test-runner
+#
+# View logs:
+#   docker-compose -f docker-compose.dev.yml logs -f api-dev
+#
+# Access container shell:
+#   docker exec -it easypost-api-dev sh
+#
+# Stop all services:
+#   docker-compose -f docker-compose.dev.yml down
+#
+# Stop and remove volumes:
+#   docker-compose -f docker-compose.dev.yml down -v
+
