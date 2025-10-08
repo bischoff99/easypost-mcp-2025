@@ -207,7 +207,7 @@ out/
 
 # Gatsby
 .cache/
-public/
+# public/ - commented out, we need our public directory for web dashboard
 
 # Parcel
 .parcel-cache/

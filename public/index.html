@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyPost Dashboard 2025 - Real Data</title>
+    <meta name="description" content="EasyPost shipping dashboard with live account data">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.8.0/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+</head>
+<body data-theme="light">
+    <!-- Global Loader -->
+    <div id="global-loader" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 12px; text-align: center;">
+            <div class="spinner" style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #A47C48; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+            <div class="loader-text">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>📦 EasyPost Dashboard</h1>
+            <div class="header-actions">
+                <button id="refresh-data" class="btn-icon" title="Refresh data">
+                    🔄
+                </button>
+                <button id="theme-toggle" class="btn-icon" title="Toggle theme">
+                    🌓
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Statistics Cards -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Shipments</h3>
+                <div class="stat-value" id="total-shipments">0</div>
+                <div class="stat-label">All time</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Active Tracking</h3>
+                <div class="stat-value" id="active-tracking">0</div>
+                <div class="stat-label">In transit</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Delivered Today</h3>
+                <div class="stat-value" id="delivered-today">0</div>
+                <div class="stat-label">Successful</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Total Cost</h3>
+                <div class="stat-value" id="total-cost">$0.00</div>
+                <div class="stat-label">This period</div>
+            </div>
+        </section>
+
+        <!-- Recent Shipments -->
+        <section class="section">
+            <div class="section-header">
+                <h2>📦 Recent Shipments</h2>
+                <span class="badge" id="today-shipments">0 today</span>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Shipment ID</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Status</th>
+                            <th>Carrier</th>
+                            <th>Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shipments-table-body">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem;">
+                                Loading shipments...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Active Tracking -->
+        <section class="section">
+            <div class="section-header">
+                <h2>🔍 Active Tracking</h2>
+                <span class="badge" id="tracking-count">0 active</span>
+            </div>
+            
+            <div id="tracking-list" class="tracking-list">
+                <div style="text-align: center; padding: 2rem; color: var(--text-secondary)">
+                    Loading tracking information...
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Command Palette -->
+    <div id="command-palette" class="command-palette hidden">
+        <div class="command-palette-backdrop"></div>
+        <div class="command-palette-content">
+            <input type="text" id="command-input" placeholder="Type a command..." autocomplete="off">
+            <div id="command-results" class="command-results"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>EasyPost MCP Server 2025 - Real-time shipping management</p>
+        <p id="last-updated">Last updated: --</p>
+    </footer>
+
+    <!-- Load the dashboard script -->
+    <script src="app.js"></script>
+    
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .stat-card {
+            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            font-size: 0.875rem;
+        }
+        
+        .tracking-card {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+        
+        .tracking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .tracking-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .latest-update {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-delivered { background: #d1fae5; color: #065f46; }
+        .status-in-transit { background: #dbeafe; color: #1e40af; }
+        .status-out-for-delivery { background: #fed7aa; color: #92400e; }
+        .status-pending { background: #f3f4f6; color: #374151; }
+        .status-failed { background: #fee2e2; color: #991b1b; }
+        
+        [data-theme="dark"] .status-delivered { background: #065f46; color: #d1fae5; }
+        [data-theme="dark"] .status-in-transit { background: #1e40af; color: #dbeafe; }
+        [data-theme="dark"] .status-out-for-delivery { background: #92400e; color: #fed7aa; }
+        [data-theme="dark"] .status-pending { background: #374151; color: #f3f4f6; }
+        [data-theme="dark"] .status-failed { background: #991b1b; color: #fee2e2; }
+    </style>
+</body>
+</html>
+
