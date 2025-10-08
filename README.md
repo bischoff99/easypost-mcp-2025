@@ -227,8 +227,7 @@ easypost-mcp-server-2025/
 │   ├── types/             # Type definitions
 │   ├── services/          # Business logic
 │   ├── middleware/        # Express middleware
-│   ├── routes/            # API route handlers
-│   └── docs/              # OpenAPI documentation
+│   └── routes/            # API route handlers
 ├── web/                   # Frontend dashboard
 │   ├── components/        # UI components
 │   ├── styles/           # CSS and design system
@@ -239,9 +238,7 @@ easypost-mcp-server-2025/
 │   ├── integration/       # API integration tests
 │   ├── ui/               # UI component tests
 │   └── performance/       # Performance benchmarks
-├── docs/                  # Documentation
-├── k8s/                   # Kubernetes manifests
-└── docker/                # Docker configurations
+└── k8s/                   # Kubernetes manifests
 ```
 
 ---
@@ -323,7 +320,7 @@ Automatic deployment on push to `main` or `staging` branch:
 2. **Docker Build**: Multi-stage image build with security scanning
 3. **Deploy**: Automated deployment with health checks and rollback
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete documentation.
+Deployment configurations are available in the repository.
 
 ### **Production Deployment Options**
 
@@ -583,18 +580,14 @@ npm run storybook     # Start component storybook
 
 ### **Complete Documentation**
 - 📖 [**API Reference**](https://docs.easypost.com/api) - Complete API documentation
-- 🏗️ [**Architecture Guide**](./docs/architecture.md) - System design and architecture
-- 🚀 [**Deployment Guide**](./docs/deployment.md) - Production deployment instructions
-- 🔧 [**Configuration Guide**](./docs/configuration.md) - Environment and feature configuration
-- 🧪 [**Testing Guide**](./docs/testing.md) - Testing strategies and best practices
-- 🎨 [**UI Components**](./docs/components.md) - Component library and design system
-- 🔒 [**Security Guide**](./docs/security.md) - Security best practices and compliance
+- 🔧 **Configuration**: See `.env.example` for available environment variables
+- 🧪 **Testing**: Run `npm test` to execute the test suite
+- 🛡️ **Security**: Built-in security with Helmet 8.0, rate limiting, and input validation
 
 ### **API Documentation**
 Interactive API documentation available at:
 - **Development**: http://localhost:3000/docs
 - **Swagger UI**: http://localhost:3000/swagger
-- **Postman Collection**: [Download here](./docs/postman-collection.json)
 
 ---
 
@@ -648,9 +641,6 @@ redis-cli ping
 ```bash
 # Enable detailed logging
 DEBUG_MODE=true LOG_LEVEL=debug npm start
-
-# View logs in real-time
-tail -f logs/combined.log
 ```
 
 ### **Performance Issues**
