@@ -740,11 +740,13 @@ All configuration is done via environment variables. See `.env.example` for the 
 See `.env.example` for all 70+ available configuration options.
 
 ### **Complete Documentation**
-- 📖 [**API Reference**](https://docs.easypost.com/api) - Complete API documentation
+- 📖 [**Documentation Index**](docs/README.md) - Complete documentation library (22 guides)
+- 🏗️ [**Architecture**](docs/ARCHITECTURE.md) - System design and architecture
 - 🔧 **Configuration**: See `.env.example` for all environment variables
-- 🧪 **Testing**: Run `npm test` or `npm run test:docker` to execute tests
+- 🧪 **Testing**: See [Test Reports](docs/COMPREHENSIVE-TEST-REPORT.md) - 100% coverage
 - 🛡️ **Security**: Built-in security with Helmet 8.0, rate limiting, and input validation
 - 🐳 **Docker**: Use `docker-compose.dev.yml` for development environment
+- 🚀 **GraphQL**: See [v4.2.0 Guide](docs/V4.2.0-IMPLEMENTATION-GUIDE.md) - GraphQL API foundation
 
 ### **API Documentation**
 Interactive API documentation available at:

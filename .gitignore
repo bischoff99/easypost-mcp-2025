@@ -542,4 +542,5 @@ prometheus-data/
 !k8s/
 !helm/
 !terraform/
-!ansible/
+!ansible/*.log
+server.log
