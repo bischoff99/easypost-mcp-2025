@@ -467,7 +467,6 @@ rate-cache/
 tracking-cache/
 
 # Cleanup artifacts
-docs-archive/
 old-files-backup/
 *.cleanup.log
 
