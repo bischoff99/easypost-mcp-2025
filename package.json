@@ -7,8 +7,6 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "web": "node src/web-server.js",
-    "both": "concurrently \"npm run start\" \"npm run web\"",
     "build": "npm run build:assets && npm run build:web",
     "build:assets": "mkdir -p web/assets && cp -r assets/* web/assets/",
     "build:web": "echo 'Web assets ready for production'",
@@ -24,7 +22,6 @@
     "dev:build": "docker-compose -f docker-compose.dev.yml up --build",
     "test:docker": "docker-compose -f docker-compose.dev.yml run --rm test-runner",
     "shell": "docker exec -it easypost-api-dev sh",
-    "shell:web": "docker exec -it easypost-web-dev sh",
     "logs:dev": "docker-compose -f docker-compose.dev.yml logs -f",
     "down:dev": "docker-compose -f docker-compose.dev.yml down",
     "deploy": "docker build -t easypost-dashboard:4.0 . && docker run -p 3000:3000 easypost-dashboard:4.0",

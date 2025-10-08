@@ -7,6 +7,8 @@
 
 import express from 'express';
 import { createServer } from 'http';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import config from './config/index.js';
@@ -25,6 +27,10 @@ import claimsRoutes from './routes/claims.js';
 import forgeRoutes from './routes/forge.js';
 import analyticsRoutes from './routes/analytics.js';
 import batchRoutes from './routes/batch.js';
+import dashboardRoutes from './routes/dashboard.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // ASCII Banner
 console.log(
@@ -72,7 +78,18 @@ function initializeExpress() {
     });
   });
 
-  // Mount API routes (protected with API key authentication)
+  // Serve web dashboard static files from public directory
+  const publicPath = join(__dirname, '../public');
+  app.use(express.static(publicPath, {
+    maxAge: config.isProduction ? '1d' : 0,
+    etag: true,
+    lastModified: true,
+  }));
+
+  // Dashboard API routes (no auth required - internal use)
+  app.use('/api/dashboard', dashboardRoutes);
+
+  // Main API routes (protected with API key authentication)
   app.use('/api/shipments', validateApiKey, shipmentsRoutes);
   app.use('/api/tracking', validateApiKey, trackingRoutes);
   app.use('/api/addresses', validateApiKey, addressesRoutes);
@@ -82,14 +99,16 @@ function initializeExpress() {
   app.use('/api/analytics', validateApiKey, analyticsRoutes);
   app.use('/api/batch', validateApiKey, batchRoutes);
 
-  // Serve static files (if needed)
-  app.use(express.static('web', { maxAge: '1d' }));
+  // 404 handler for API routes only
+  app.use('/api/*', middleware.notFoundMiddleware);
 
-  // 404 handler
-  app.use(middleware.notFoundMiddleware);
-
-  // Error handler (must be last)
+  // Error handler (before SPA fallback)
   app.use(middleware.errorHandlerMiddleware);
+
+  // SPA fallback - serve index.html for all non-API routes
+  app.use((req, res) => {
+    res.sendFile(join(publicPath, 'index.html'));
+  });
 
   logger.info('Express application initialized');
   return app;
@@ -129,11 +148,15 @@ async function startServer() {
     httpServer.listen(config.server.port, config.server.host, () => {
       logger.info(chalk.green.bold(`
 ╔═══════════════════════════════════════════════════════════╗
-║  🚀 Server is running!                                    ║
+║  🚀 EasyPost MCP Server + Dashboard Running!             ║
 ║                                                           ║
-║  HTTP Server:  http://${config.server.host}:${config.server.port.toString().padEnd(28)}║
-║  Environment:  ${config.env.padEnd(43)}║
-║  Logging:      ${config.logging.level.padEnd(43)}║
+║  API Server:       http://${config.server.host}:${config.server.port.toString().padEnd(28)}║
+║  Web Dashboard:    http://${config.server.host}:${config.server.port.toString().padEnd(28)}║
+║  Environment:      ${config.env.padEnd(39)}║
+║  Logging:          ${config.logging.level.padEnd(39)}║
+║                                                           ║
+║  API Endpoints:    29 endpoints ready                    ║
+║  Dashboard:        8 sections with full UI               ║
 ║                                                           ║
 ║  Socket.IO Namespaces:                                    ║
 ║    - / (main)                                             ║

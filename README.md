@@ -71,11 +71,9 @@ cp .env.example .env
 # 4. Start Redis (optional)
 docker run -d -p 6379:6379 --name redis redis:7-alpine
 
-# 5. Start the servers
-npm run both        # Both MCP and web servers
-# OR
-npm start          # MCP server only (port 3000)
-npm run web        # Web dashboard only (port 8080)
+# 5. Start the unified server (API + Dashboard)
+npm start          # Production mode (port 3000)
+npm run dev        # Development mode with hot-reload
 ```
 
 ### **Docker Development Setup (Recommended)**
@@ -90,8 +88,7 @@ cp .env.example .env
 npm run dev:docker
 
 # Access:
-# - API Server: http://localhost:3000
-# - Web Dashboard: http://localhost:8080
+# - Unified Server (API + Dashboard): http://localhost:3000
 # - Redis: localhost:6379
 ```
 

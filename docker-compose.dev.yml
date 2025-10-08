@@ -4,7 +4,7 @@ version: '3.8'
 # Hot-reload enabled development setup for API implementation and testing
 
 services:
-  # Development API Server
+  # Unified Server (API + Web Dashboard)
   api-dev:
     build:
       context: .
@@ -50,36 +50,7 @@ services:
       retries: 3
       start_period: 10s
 
-  # Web Dashboard Server
-  web-dev:
-    build:
-      context: .
-      target: development
-      dockerfile: Dockerfile
-    container_name: easypost-web-dev
-    volumes:
-      - ./src:/app/src
-      - ./public:/app/public
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - EASYPOST_API_KEY=${EASYPOST_API_KEY:-}
-      - PORT=8080
-      - HOST=0.0.0.0
-      - LOG_LEVEL=debug
-      - REDIS_URL=redis://redis:6379
-      - DEBUG_MODE=true
-    ports:
-      - "8080:8080"
-    depends_on:
-      - api-dev
-      - redis
-    command: npm run web
-    stdin_open: true
-    tty: true
-    networks:
-      - easypost-dev
-    restart: unless-stopped
+
 
   # Redis for caching and sessions
   redis:
