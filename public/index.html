@@ -6,6 +6,7 @@
     <title>EasyPost Dashboard 2025</title>
     <meta name="description" content="Complete shipping management platform with AI-powered features">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="advanced-styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -687,5 +688,22 @@
 
     <!-- Load Dashboard Script -->
     <script src="app.js"></script>
+    <script src="advanced-features.js"></script>
+    <script src="analytics-enhanced.js"></script>
+    <script src="ui-enhancements.js"></script>
+    
+    <script>
+        // Initialize advanced features when dashboard is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (window.dashboard) {
+                    window.advancedFeatures = new AdvancedFeatures(dashboard);
+                    window.enhancedAnalytics = new EnhancedAnalytics(dashboard);
+                    window.uiEnhancements = new UIEnhancements(dashboard);
+                    console.log('✨ Advanced features initialized!');
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
