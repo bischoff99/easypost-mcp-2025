@@ -1,0 +1,546 @@
+# === Node.js & npm ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage and testing
+coverage/
+nyc_output/
+.coverage/
+*.lcov
+.nyc_output
+
+# Instrumentation
+lib-cov
+
+# === Environment & Secrets ===
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+..staging
+..production
+
+# Docker Compose environment overrides
+.env.override
+docker-compose.override.yml
+
+# API keys and sensitive data
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.json
+config.json
+credentials.json
+
+# === Build & Distribution ===
+dist/
+build/
+out/
+.output/
+.vercel/
+.next/
+.nuxt/
+
+# TypeScript build info
+*.tsbuildinfo
+.tsbuildinfo
+
+# === Logs & Monitoring ===
+logs/
+*.log
+*.log.*
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Application logs
+combined.log
+error.log
+access.log
+app.log
+
+# Monitoring data
+.monitoring/
+metrics/
+traces/
+
+# === IDEs & Editors ===
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.swp
+*.swo
+*~
+
+# Vim
+*.swp
+*.swo
+*.swn
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# === OS Generated Files ===
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# === Dependencies & Package Managers ===
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# pnpm
+.pnpm-store/
+
+# Bower
+bower_components/
+
+# === Caching & Temporary Files ===
+
+# Vite
+.vite/
+.vite-cache/
+
+# Webpack
+.webpack/
+
+# Turbopack
+.turbo/
+
+# SvelteKit
+.svelte-kit/
+
+# Storybook
+.out
+.storybook-out
+storybook-static/
+
+# Next.js
+.next/
+out/
+
+# Nuxt.js
+.nuxt/
+.output/
+
+# Gatsby
+.cache/
+public/
+
+# Parcel
+.parcel-cache/
+
+# === Testing ===
+
+# Jest
+coverage/
+.nyc_output/
+
+# Cypress
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
+# Playwright
+test-results/
+playwright-report/
+
+# === Database & Storage ===
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+# Database dumps
+*.sql
+*.dump
+
+# Redis dumps
+dump.rdb
+
+# MongoDB
+*.mongorc.js
+
+# === Cloud & Deployment ===
+
+# AWS
+.aws/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Docker
+.dockerignore
+
+# Kubernetes
+*.kubeconfig
+
+# === Application Specific ===
+
+# EasyPost specific
+easypost-cache/
+labels/
+*.label
+shipment-files/
+
+# File uploads
+uploads/
+temp-uploads/
+user-files/
+
+# Reports
+reports/
+*.report
+*.pdf
+*.csv
+
+# Certificates
+certificates/
+ssl/
+*.crt
+*.csr
+
+# Backups
+*.backup
+*.bak
+*.old
+backups/
+
+# === Development Tools ===
+
+# ESLint cache
+.eslintcache
+
+# Stylelint cache
+.stylelintcache
+
+# Prettier cache
+.prettiercache
+
+# PostCSS
+.postcssrc
+
+# Rollup
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# === Mobile Development ===
+
+# React Native
+.expo/
+.expo-shared/
+
+# iOS
+ios/
+*.xcodeproj/
+*.xcworkspace/
+
+# Android
+android/
+*.apk
+
+# === Analytics & Tracking ===
+
+# Google Analytics
+google-analytics.json
+
+# Mixpanel
+mixpanel.json
+
+# === Third-party Services ===
+
+# Sentry
+.sentryclirc
+
+# Vercel
+.vercel/
+
+# Netlify
+.netlify/
+
+# Railway
+.railway/
+
+# Heroku
+.herokudir
+
+# === Local Configuration ===
+
+# Local configuration overrides
+local.json
+*.local.json
+local.config.js
+
+# Development databases
+dev.db
+test.db
+
+# Local scripts
+local-scripts/
+*.local.sh
+
+# === Large Files & Media ===
+
+# Large files (should use Git LFS instead)
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Videos
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+
+# Audio
+*.mp3
+*.wav
+*.flac
+*.aac
+
+# Images (if not part of the app)
+*.psd
+*.ai
+*.sketch
+
+# === Documentation Build ===
+
+# GitBook
+_book/
+
+# VuePress
+.vuepress/dist/
+
+# Docusaurus
+.docusaurus/
+
+# === Benchmarking ===
+
+# Benchmark results
+benchmark-results/
+*.benchmark
+perf/
+
+# === Security & Compliance ===
+
+# Security scan results
+security-reports/
+*.sarif
+
+# Audit results
+audit-results/
+
+# === Performance Monitoring ===
+
+# Lighthouse reports
+lighthouse-reports/
+*.lighthouse.json
+
+# Bundle analyzer
+bundle-analyzer/
+
+# === Internationalization ===
+
+# Translation build files
+locales/*.json
+!locales/en.json
+translations-cache/
+
+# === Custom Application Files ===
+
+# Custom ignore patterns for this specific project
+# Add any project-specific patterns below this line
+
+# EasyPost MCP Server specific ignores
+mcp-cache/
+shipment-cache/
+rate-cache/
+tracking-cache/
+
+# Cleanup artifacts
+docs-archive/
+old-files-backup/
+*.cleanup.log
+
+# Generated API documentation
+docs/generated/
+swagger.json
+openapi.yaml
+
+# Performance test results
+load-test-results/
+stress-test-results/
+
+# Demo data
+demo-shipments.json
+sample-data/
+
+# Third-party API keys (if stored in files)
+easypost-keys.json
+carrier-credentials.json
+
+# Temporary development files
+scratch/
+playground/
+experiments/
+
+# Custom monitoring dashboards
+grafana-data/
+prometheus-data/
+
+# === Keep These Files ===
+# Use ! prefix to ensure important files are not ignored
+
+# Important configuration files
+!.github/
+!.vscode/settings.json
+!docker-compose.yml
+!Dockerfile
+!.dockerignore
+!tsconfig.json
+!package.json
+!package-lock.json
+!yarn.lock
+!.env.example
+!README.md
+!LICENSE
+!CHANGELOG.md
+
+# Keep example/template files
+!examples/
+!templates/
+!*.example.*
+!*.template.*
+!sample-config.*
+
+# Keep documentation
+!docs/
+!*.md
+
+# Keep test files
+!tests/
+!test/
+!spec/
+!__tests__/
+
+# Keep CI/CD configuration
+!.github/workflows/
+!.gitlab-ci.yml
+!azure-pipelines.yml
+!Jenkinsfile
+!buildspec.yml
+
+# Keep deployment configurations
+!k8s/
+!helm/
+!terraform/
+!ansible/

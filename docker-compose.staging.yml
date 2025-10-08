@@ -1,0 +1,161 @@
+version: '3.8'
+
+# EasyPost MCP Server 2025 - Staging Environment
+# Docker Compose configuration for multi-container deployment
+
+services:
+  # Redis Cache Service
+  redis:
+    image: redis:7-alpine
+    container_name: easypost-redis-staging
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - easypost-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # MCP Server Service
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-4.0.0}
+        BUILD_DATE: ${BUILD_DATE}
+        VCS_REF: ${GIT_COMMIT}
+    image: easypost-mcp-server:staging
+    container_name: easypost-mcp-staging
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.staging
+    environment:
+      - NODE_ENV=staging
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+      - SERVICE_NAME=mcp-server
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - easypost-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Web Dashboard Service
+  web-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-4.0.0}
+        COMPONENT: web-dashboard
+    image: easypost-web-dashboard:staging
+    container_name: easypost-web-staging
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.staging
+    environment:
+      - NODE_ENV=staging
+      - PORT=8080
+      - SERVICE_NAME=web-dashboard
+      - MCP_SERVER_URL=http://mcp-server:3000
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      mcp-server:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - easypost-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Nginx Reverse Proxy
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: easypost-nginx:staging
+    container_name: easypost-nginx-staging
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.staging.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-logs:/var/log/nginx
+    depends_on:
+      - mcp-server
+      - web-dashboard
+    restart: unless-stopped
+    networks:
+      - easypost-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Networks
+networks:
+  easypost-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Persistent Volumes
+volumes:
+  redis-data:
+    driver: local
+  nginx-logs:
+    driver: local
+
+# Metadata
+x-common-labels: &common-labels
+  com.easypost.environment: "staging"
+  com.easypost.version: "4.0.0"
+  com.easypost.managed-by: "docker-compose"
+

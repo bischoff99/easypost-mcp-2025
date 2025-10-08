@@ -1,0 +1,185 @@
+{
+  "name": "easypost-mcp-server-2025",
+  "version": "4.0.0",
+  "description": "EasyPost MCP Server 2025 - Updated with latest packages, modern UI, and enhanced features",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "web": "node src/web-server.js",
+    "both": "concurrently \"npm run start\" \"npm run web\"",
+    "build": "npm run build:assets && npm run build:web",
+    "build:assets": "mkdir -p web/assets && cp -r assets/* web/assets/",
+    "build:web": "echo 'Web assets ready for production'",
+    "test": "node --test test/*.test.js",
+    "test:integration": "node test/integration.test.js",
+    "test:web": "node test/web-api.test.js",
+    "health": "curl -s http://localhost:3000/health | jq",
+    "validate": "node scripts/validate-tools.js",
+    "migrate": "node scripts/migrate-from-v3.js",
+    "lint": "eslint *.js --fix",
+    "format": "prettier --write *.js web/*.{html,css,js}",
+    "audit": "npm audit --audit-level high",
+    "outdated": "npm outdated",
+    "deploy": "docker build -t easypost-dashboard:4.0 . && docker run -p 3000:3000 easypost-dashboard:4.0",
+    "docker:build": "docker build -t easypost-mcp-2025 .",
+    "docker:run": "docker run -d -p 3000:3000 --env-file .env easypost-mcp-2025",
+    "k8s:deploy": "kubectl apply -f k8s/",
+    "performance": "lighthouse http://localhost:3000 --output json --output-path ./reports/lighthouse.json",
+    "deploy:staging": "./scripts/deploy-staging.sh",
+    "health:staging": "./scripts/health-check.sh localhost",
+    "logs:staging": "docker-compose -f docker-compose.staging.yml logs -f",
+    "docker:build:staging": "docker build --target production -t easypost-mcp:staging .",
+    "docker:up": "docker-compose -f docker-compose.staging.yml up -d",
+    "docker:down": "docker-compose -f docker-compose.staging.yml down",
+    "docker:logs": "docker-compose -f docker-compose.staging.yml logs -f",
+    "rollback:staging": "./scripts/rollback.sh"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "@easypost/api": "^8.0.0",
+    "@modelcontextprotocol/sdk": "^1.2.0",
+    "bcryptjs": "^2.4.3",
+    "chalk": "^5.3.0",
+    "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.4.1",
+    "express-validator": "^7.2.0",
+    "figlet": "^1.7.0",
+    "handlebars": "^4.7.8",
+    "helmet": "^8.0.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "moment": "^2.30.1",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.2",
+    "node-cache": "^5.1.2",
+    "nodemailer": "^7.0.9",
+    "ora": "^9.0.0",
+    "redis": "^4.7.0",
+    "sharp": "^0.34.4",
+    "socket.io": "^4.8.0",
+    "uuid": "^13.0.0",
+    "winston": "^3.14.2",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.1",
+    "css-loader": "^7.1.2",
+    "eslint": "^9.12.0",
+    "html-webpack-plugin": "^5.6.0",
+    "jest": "^29.7.0",
+    "lighthouse": "^12.2.1",
+    "nodemon": "^3.1.7",
+    "postcss": "^8.4.47",
+    "postcss-cli": "^11.0.0",
+    "prettier": "^3.3.3",
+    "puppeteer": "^24.23.0",
+    "style-loader": "^4.0.0",
+    "supertest": "^7.0.0",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.3",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.1.0"
+  },
+  "keywords": [
+    "easypost",
+    "shipping",
+    "mcp",
+    "model-context-protocol",
+    "dashboard",
+    "web-interface",
+    "luma-ai",
+    "forge",
+    "claims-api",
+    "tracking",
+    "logistics",
+    "2025",
+    "nodejs-22",
+    "express-5",
+    "modern-ui",
+    "responsive-design",
+    "dark-mode",
+    "ai-powered"
+  ],
+  "author": {
+    "name": "Assistant",
+    "email": "assistant@example.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/easypost-mcp-server-2025.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/easypost-mcp-server-2025/issues"
+  },
+  "homepage": "https://github.com/your-org/easypost-mcp-server-2025#readme",
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/your-org"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/easypost-mcp"
+    }
+  ],
+  "config": {
+    "easypost_api_version": "v2",
+    "supported_carriers": "100+",
+    "node_version": "22.x LTS",
+    "express_version": "5.1.x",
+    "features": {
+      "luma_ai": true,
+      "forge": true,
+      "claims_api": true,
+      "wallet": true,
+      "enhanced_webhooks": true,
+      "batch_processing": true,
+      "carbon_tracking": true,
+      "real_time_updates": true,
+      "file_uploads": true,
+      "analytics": true,
+      "dark_mode": true,
+      "responsive_design": true,
+      "pwa_support": true,
+      "websockets": true,
+      "redis_cache": true
+    },
+    "ui_framework": "vanilla-js-2025",
+    "css_framework": "modern-css-features"
+  },
+  "browserslist": [
+    "> 2%",
+    "last 3 versions",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "volta": {
+    "node": "22.11.0",
+    "npm": "11.6.0"
+  },
+  "overrides": {
+    "ws": "^8.18.0"
+  },
+  "peerDependencies": {
+    "node": ">=22.0.0"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8",
+    "utf-8-validate": "^6.0.4"
+  }
+}
