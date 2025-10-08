@@ -4,8 +4,8 @@
  */
 
 import express from 'express';
-import ShipmentService from '../services/ShipmentService.js';
-import TrackingService from '../services/TrackingService.js';
+import shipmentService from '../services/ShipmentService.js';
+import trackingService from '../services/TrackingService.js';
 import logger from '../lib/logger.js';
 import { cache } from '../lib/redis.js';
 
@@ -27,8 +27,8 @@ router.get('/stats', async (req, res) => {
 
     // Fetch real data from EasyPost
     const [shipments, trackers] = await Promise.all([
-      ShipmentService.listShipments({ page_size: 100 }),
-      TrackingService.listTrackers({ page_size: 100 }),
+      shipmentService.listShipments({ page_size: 100 }),
+      trackingService.listTrackers({ page_size: 100 }),
     ]);
 
     // Calculate statistics
@@ -70,6 +70,142 @@ router.get('/stats', async (req, res) => {
 });
 
 /**
+ * GET /api/dashboard/recent
+ * Get recent shipments and trackers
+ */
+router.get('/recent', async (req, res) => {
+  try {
+    const cacheKey = 'dashboard:recent';
+    
+    // Check cache
+    const cached = await cache.get(cacheKey);
+    if (cached) {
+      logger.debug('Recent data from cache');
+      return res.json(cached);
+    }
+
+    // Fetch recent data
+    const [shipments, trackers] = await Promise.all([
+      shipmentService.listShipments({ page_size: 10 }),
+      trackingService.listTrackers({ page_size: 10 }),
+    ]);
+
+    const recentData = {
+      shipments: shipments.shipments?.slice(0, 10).map(s => ({
+        id: s.id,
+        to: s.to_address?.city || 'Unknown',
+        carrier: s.selected_rate?.carrier || 'N/A',
+        status: s.postage_label ? 'purchased' : 'created',
+        created: s.created_at,
+      })) || [],
+      trackers: trackers.trackers?.slice(0, 10).map(t => ({
+        id: t.id,
+        tracking_code: t.tracking_code,
+        carrier: t.carrier,
+        status: t.status,
+        updated: t.updated_at,
+      })) || [],
+    };
+
+    // Cache for 2 minutes
+    await cache.set(cacheKey, recentData, 120);
+
+    res.json(recentData);
+  } catch (error) {
+    logger.error('Failed to fetch recent data', { error: error.message });
+    
+    // Return empty arrays on error
+    res.json({
+      shipments: [],
+      trackers: [],
+    });
+  }
+});
+
+/**
+ * GET /api/dashboard/activities
+ * Get recent activity log
+ */
+router.get('/activities', async (req, res) => {
+  try {
+    const cacheKey = 'dashboard:activities';
+    
+    // Check cache
+    const cached = await cache.get(cacheKey);
+    if (cached) {
+      logger.debug('Activities from cache');
+      return res.json(cached);
+    }
+
+    // Fetch recent shipments and trackers for activity log
+    const [shipments, trackers] = await Promise.all([
+      shipmentService.listShipments({ page_size: 20 }),
+      trackingService.listTrackers({ page_size: 20 }),
+    ]);
+
+    // Combine and create activity log
+    const activities = [];
+
+    // Add shipment activities
+    shipments.shipments?.forEach(s => {
+      activities.push({
+        id: `ship-${s.id}`,
+        type: 'shipment',
+        action: s.postage_label ? 'Label purchased' : 'Shipment created',
+        description: `${s.to_address?.city || 'Unknown'} via ${s.selected_rate?.carrier || 'N/A'}`,
+        timestamp: s.created_at || new Date().toISOString(),
+        icon: '📦',
+      });
+    });
+
+    // Add tracking activities
+    trackers.trackers?.forEach(t => {
+      const statusIcons = {
+        'pre_transit': '🏭',
+        'in_transit': '🚚',
+        'out_for_delivery': '📬',
+        'delivered': '✅',
+        'returned': '↩️',
+        'failure': '❌',
+      };
+
+      activities.push({
+        id: `track-${t.id}`,
+        type: 'tracking',
+        action: 'Status updated',
+        description: `${t.tracking_code} - ${t.status}`,
+        timestamp: t.updated_at || new Date().toISOString(),
+        icon: statusIcons[t.status] || '📍',
+      });
+    });
+
+    // Sort by timestamp (most recent first)
+    activities.sort((a, b) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+
+    // Limit to 50 most recent
+    const recentActivities = {
+      activities: activities.slice(0, 50),
+      total: activities.length,
+    };
+
+    // Cache for 1 minute
+    await cache.set(cacheKey, recentActivities, 60);
+
+    res.json(recentActivities);
+  } catch (error) {
+    logger.error('Failed to fetch activities', { error: error.message });
+    
+    // Return empty array on error
+    res.json({
+      activities: [],
+      total: 0,
+    });
+  }
+});
+
+/**
  * Get recent shipments
  */
 router.get('/shipments/recent', async (req, res) => {
@@ -84,7 +220,7 @@ router.get('/shipments/recent', async (req, res) => {
     }
 
     // Fetch from EasyPost
-    const result = await ShipmentService.listShipments({
+    const result = await shipmentService.listShipments({
       page_size: limit,
     });
 
@@ -141,7 +277,7 @@ router.get('/tracking/active', async (req, res) => {
     }
 
     // Fetch from EasyPost
-    const result = await TrackingService.listTrackers({
+    const result = await trackingService.listTrackers({
       page_size: limit,
     });
 
@@ -191,7 +327,7 @@ router.get('/tracking/:trackingNumber', async (req, res) => {
   try {
     const { trackingNumber } = req.params;
     
-    const tracker = await TrackingService.getTracking(trackingNumber);
+    const tracker = await trackingService.getTracking(trackingNumber);
     
     res.json({
       success: true,
@@ -225,7 +361,7 @@ router.get('/shipments/:shipmentId', async (req, res) => {
   try {
     const { shipmentId } = req.params;
     
-    const shipment = await ShipmentService.getShipment(shipmentId);
+    const shipment = await shipmentService.getShipment(shipmentId);
     
     res.json({
       success: true,
@@ -263,7 +399,7 @@ router.post('/shipments/create', async (req, res) => {
     
     logger.info('Creating shipment from dashboard', { shipmentData });
     
-    const shipment = await ShipmentService.createShipment(shipmentData);
+    const shipment = await shipmentService.createShipment(shipmentData);
     
     res.json({
       success: true,
@@ -295,7 +431,7 @@ router.post('/shipments/:shipmentId/buy', async (req, res) => {
     
     logger.info('Buying shipment from dashboard', { shipmentId, rateId });
     
-    const shipment = await ShipmentService.buyShipment(shipmentId, rateId);
+    const shipment = await shipmentService.buyShipment(shipmentId, rateId);
     
     res.json({
       success: true,
