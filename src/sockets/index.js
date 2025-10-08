@@ -10,6 +10,12 @@ import { trackingNamespace } from './namespaces/tracking.js';
 import { shipmentsNamespace } from './namespaces/shipments.js';
 import { notificationsNamespace } from './namespaces/notifications.js';
 import { analyticsNamespace } from './namespaces/analytics.js';
+import { 
+  authenticateSocket, 
+  rateLimitSocket, 
+  logSocket, 
+  attachUserData 
+} from './auth-middleware.js';
 
 /**
  * Initialize Socket.IO server with all namespaces
@@ -26,6 +32,13 @@ export function initializeSocketIO(httpServer) {
     maxHttpBufferSize: config.socketio.maxHttpBufferSize,
     transports: ['websocket', 'polling'],
   });
+
+  // Apply global middleware to all namespaces
+  io.use(rateLimitSocket);
+  io.use(logSocket);
+  io.use(attachUserData);
+  
+  logger.info('Socket.IO middleware applied (rate limiting, logging, user data)');
 
   // Main namespace (root)
   io.on('connection', (socket) => {
