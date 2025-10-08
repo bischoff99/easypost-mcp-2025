@@ -1,0 +1,254 @@
+# EasyPost MCP Server GraphQL Schema
+# Version: 4.2.0
+
+# Core Types
+
+type Shipment {
+  id: ID!
+  tracking_code: String
+  status: String!
+  from_address: Address!
+  to_address: Address!
+  parcel: Parcel!
+  selected_rate: Rate
+  rates: [Rate!]
+  postage_label: PostageLabel
+  created_at: String!
+  updated_at: String!
+}
+
+type Address {
+  id: ID!
+  name: String!
+  company: String
+  street1: String!
+  street2: String
+  city: String!
+  state: String!
+  zip: String!
+  country: String!
+  phone: String
+  email: String
+}
+
+type Parcel {
+  id: ID!
+  length: Float!
+  width: Float!
+  height: Float!
+  weight: Float!
+  predefined_package: String
+}
+
+type Rate {
+  id: ID!
+  carrier: String!
+  service: String!
+  rate: Float!
+  currency: String
+  delivery_days: Int
+  delivery_date: String
+  delivery_date_guaranteed: Boolean
+  est_delivery_days: Int
+}
+
+type PostageLabel {
+  id: ID!
+  label_url: String!
+  label_pdf_url: String
+  label_epl2_url: String
+  label_zpl_url: String
+  tracking_code: String!
+}
+
+type Tracker {
+  id: ID!
+  tracking_code: String!
+  status: String!
+  status_detail: String
+  carrier: String!
+  est_delivery_date: String
+  weight: Float
+  signed_by: String
+  tracking_details: [TrackingDetail!]!
+  created_at: String!
+  updated_at: String!
+}
+
+type TrackingDetail {
+  status: String!
+  message: String
+  description: String
+  datetime: String!
+  source: String
+  tracking_location: TrackingLocation
+}
+
+type TrackingLocation {
+  city: String
+  state: String
+  country: String
+  zip: String
+}
+
+# Queries
+
+type Query {
+  # Health & Status
+  health: HealthStatus!
+  apiStatus: APIStatus!
+  
+  # Shipments
+  shipment(id: ID!): Shipment
+  shipments(limit: Int, offset: Int, status: String): [Shipment!]!
+  
+  # Tracking
+  tracker(id: ID!): Tracker
+  trackByCode(tracking_code: String!, carrier: String): Tracker
+  trackers(limit: Int, offset: Int): [Tracker!]!
+  
+  # Analytics
+  dashboardStats: DashboardStats!
+  analytics(startDate: String, endDate: String): Analytics!
+}
+
+type HealthStatus {
+  status: String!
+  timestamp: String!
+  uptime: Float!
+  environment: String!
+}
+
+type APIStatus {
+  status: String!
+  version: String!
+  timestamp: String!
+}
+
+type DashboardStats {
+  total_shipments: Int!
+  active_trackers: Int!
+  total_claims: Int!
+  pending_batches: Int!
+  recent_shipments: [Shipment!]
+}
+
+type Analytics {
+  shipments_created: Int!
+  total_cost: Float!
+  average_delivery_days: Float!
+  top_carriers: [CarrierStats!]!
+  date_range: DateRange!
+}
+
+type CarrierStats {
+  carrier: String!
+  count: Int!
+  total_cost: Float!
+  average_cost: Float!
+}
+
+type DateRange {
+  start: String!
+  end: String!
+}
+
+# Mutations
+
+type Mutation {
+  # Shipments
+  createShipment(input: CreateShipmentInput!): Shipment!
+  buyShipment(id: ID!, rate_id: ID!): Shipment!
+  refundShipment(id: ID!): RefundResult!
+  
+  # Tracking
+  createTracker(tracking_code: String!, carrier: String): Tracker!
+  
+  # Claims
+  createClaim(input: CreateClaimInput!): Claim!
+  
+  # Forge (White-label)
+  createCustomer(input: CreateCustomerInput!): Customer!
+}
+
+# Input Types
+
+input CreateShipmentInput {
+  to_address: AddressInput!
+  from_address: AddressInput!
+  parcel: ParcelInput!
+  options: ShipmentOptionsInput
+}
+
+input AddressInput {
+  name: String!
+  company: String
+  street1: String!
+  street2: String
+  city: String!
+  state: String!
+  zip: String!
+  country: String!
+  phone: String
+  email: String
+}
+
+input ParcelInput {
+  length: Float!
+  width: Float!
+  height: Float!
+  weight: Float!
+  predefined_package: String
+}
+
+input ShipmentOptionsInput {
+  label_format: String
+  invoice_number: String
+  print_custom_1: String
+  certified: Boolean
+  registered: Boolean
+}
+
+input CreateClaimInput {
+  tracking_code: String!
+  amount: Float!
+  type: String!
+  description: String!
+  email: String
+}
+
+input CreateCustomerInput {
+  name: String!
+  email: String!
+  phone: String
+  company: String
+}
+
+# Response Types
+
+type RefundResult {
+  success: Boolean!
+  refund_id: String
+  status: String!
+  message: String
+}
+
+type Claim {
+  id: ID!
+  tracking_code: String!
+  status: String!
+  amount: Float!
+  type: String!
+  description: String
+  created_at: String!
+  updated_at: String!
+}
+
+type Customer {
+  id: ID!
+  name: String!
+  email: String!
+  api_key: String!
+  created_at: String!
+  active: Boolean!
+}

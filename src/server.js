@@ -29,6 +29,9 @@ import analyticsRoutes from './routes/analytics.js';
 import batchRoutes from './routes/batch.js';
 import dashboardRoutes from './routes/dashboard.js';
 
+// Import GraphQL integration (v4.2.0)
+import { createApolloServer, mountGraphQL } from './graphql/index.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -105,6 +108,9 @@ function initializeExpress() {
     middleware.notFoundMiddleware(req, res, next);
   });
 
+  // Note: GraphQL will be mounted here later (after Apollo Server is created)
+  // This placeholder ensures GraphQL is mounted BEFORE SPA fallback
+
   // Error handler (before SPA fallback)
   app.use(middleware.errorHandlerMiddleware);
 
@@ -134,13 +140,20 @@ async function startServer() {
       logger.warn(chalk.yellow('  Start Redis: docker run -d -p 6379:6379 redis:7-alpine'));
     }
 
-    // Initialize Express
+    // Initialize Express application first
     logger.info('Initializing Express application...');
-    const app = initializeExpress();
+    const app = await initializeExpress(null, null);
     logger.info(chalk.green('✓ Express initialized'));
 
     // Create HTTP server
     const httpServer = createServer(app);
+
+    // Initialize GraphQL (v4.2.0)
+    logger.info('Initializing GraphQL Server...');
+    const apolloServer = await createApolloServer(httpServer);
+    await apolloServer.start();
+    await mountGraphQL(app, apolloServer);
+    logger.info(chalk.green('✓ GraphQL Server initialized at /graphql'));
 
     // Initialize Socket.IO
     logger.info('Initializing Socket.IO...');
@@ -155,10 +168,12 @@ async function startServer() {
 ║                                                           ║
 ║  API Server:       http://${config.server.host}:${config.server.port.toString().padEnd(28)}║
 ║  Web Dashboard:    http://${config.server.host}:${config.server.port.toString().padEnd(28)}║
+║  GraphQL:          http://${config.server.host}:${config.server.port}/graphql${' '.padEnd(14)}║
 ║  Environment:      ${config.env.padEnd(39)}║
 ║  Logging:          ${config.logging.level.padEnd(39)}║
 ║                                                           ║
-║  API Endpoints:    29 endpoints ready                    ║
+║  REST Endpoints:   29 endpoints ready                    ║
+║  GraphQL API:      12 queries, 6 mutations               ║
 ║  Dashboard:        8 sections with full UI               ║
 ║                                                           ║
 ║  Socket.IO Namespaces:                                    ║
