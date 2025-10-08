@@ -28,18 +28,40 @@ export function validateApiKey(req, res, next) {
     });
   }
 
-  // For now, just validate that key exists and has reasonable format
-  // In production, you would validate against a database or key service
+  // Validate API key format
   if (apiKey.length < 10) {
-    logger.warn('Invalid API key format', {
+    logger.warn('Invalid API key format (too short)', {
       path: req.path,
       ip: req.ip,
     });
 
-    return res.status(401).json({
+    return res.status(403).json({
       success: false,
       error: 'Invalid API key',
       message: 'API key format is invalid',
+    });
+  }
+
+  // Validate against environment variable if set
+  const expectedApiKey = process.env.EASYPOST_API_KEY || process.env.TEST_EASYPOST_API_KEY;
+  
+  // If no API key is configured, validate format only (for development)
+  if (!expectedApiKey) {
+    logger.debug('No API key configured - accepting any valid format', {
+      path: req.path,
+    });
+  } else if (apiKey !== expectedApiKey) {
+    // Production: validate against configured key
+    logger.warn('API key mismatch', {
+      path: req.path,
+      ip: req.ip,
+      keyPrefix: apiKey.substring(0, 8) + '...',
+    });
+
+    return res.status(403).json({
+      success: false,
+      error: 'Invalid API key',
+      message: 'The provided API key is not valid',
     });
   }
 
